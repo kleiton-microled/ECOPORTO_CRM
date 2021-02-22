@@ -2439,8 +2439,6 @@ namespace Ecoporto.CRM.Site.Controllers
             if (habilitaDemandaAnaliseDeCredito && oportunidadeBusca.OportunidadeProposta.FormaPagamento == FormaPagamento.FATURADO)
             {
                 var fontePagadoraId = fichaFaturamentoBusca.FontePagadoraId;
-
-
                 var spcBusca = _analiseCreditoRepositorio.ObterConsultaSpc(fontePagadoraId);
 
                 if (spcBusca == null)

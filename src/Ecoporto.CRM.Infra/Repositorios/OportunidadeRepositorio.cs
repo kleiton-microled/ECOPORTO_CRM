@@ -1620,7 +1620,8 @@ SELECT NVL (
                         A.CorreiosSedex,
                         A.DiaUtil,
                         A.UltimoDiaDoMes,
-                        A.EntregaEletronica
+                        A.EntregaEletronica,
+                        A.FontePagadoraId
                     FROM
                         CRM.TB_CRM_OPORTUNIDADE_FICHA_FAT A
                     LEFT JOIN

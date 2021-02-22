@@ -90,7 +90,6 @@ namespace Ecoporto.CRM.Infra.Repositorios
                             con.Execute(@"INSERT INTO CRM.TB_CRM_USUARIOS_PERMISSAO_TELA (Id, PermissaoId, CampoId, SomenteLeitura, TipoPermissao) VALUES (CRM.SEQ_CRM_USUARIOS_PERM_TELA.NEXTVAL, :PermissaoId, :CampoId, :SomenteLeitura, :TipoPermissao)", parametros);
                         }
                     }
-
                     transaction.Commit();
                 }
             }

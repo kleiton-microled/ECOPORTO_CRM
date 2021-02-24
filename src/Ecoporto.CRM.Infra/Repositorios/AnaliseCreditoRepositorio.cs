@@ -590,7 +590,7 @@ namespace Ecoporto.CRM.Infra.Repositorios
                 var parametros = new DynamicParameters();
                 parametros.Add(name: "ContaId", value: contaId, direction: ParameterDirection.Input);
 
-                return con.Query<ConsultaSpcDTO>(@"
+				return con.Query<ConsultaSpcDTO>(@"
 					SELECT
 						A.ID,
 						A.CONTAID,
@@ -667,10 +667,13 @@ namespace Ecoporto.CRM.Infra.Repositorios
 						CRM.TB_CRM_SPC_CONSULTAS A  left join 
 						(SELECT  contaid,  MAX(CONDICAOPAGAMENTOID)  CONDICAOPAGAMENTO, 
                                            NVL(MAX(LIMITECREDITO),0) LIMITECREDITO , MAX(Observacoes) Observacoes FROM  
-                                      CRM.TB_CRM_SPC_LIMITE_CREDITO where CONTAID=:ContaId  GROUP BY CONTAID ) B  on a.contaid=b.contaid
+                                      CRM.TB_CRM_SPC_LIMITE_CREDITO where CONTAID=:ContaId  GROUP BY CONTAID ) B  on a.contaid in (SELECT ID FROM CRM.TB_CRM_CONTAS WHERE SUBSTR(DOCUMENTO,1,10) IN 
+						(select SUBSTR(DOCUMENTO,1,10) from CRM.TB_CRM_CONTAS WHERE ID=:ContaId))
 						LEFT join
 						FATURA.TB_COND_PGTO C ON b.CondicaoPagamento  = C.CODCPG
-				WHERE A.contaId =:ContaId   ", parametros).FirstOrDefault();
+				WHERE A.contaId in (SELECT ID FROM CRM.TB_CRM_CONTAS WHERE SUBSTR(DOCUMENTO,1,10) IN 
+						(select SUBSTR(DOCUMENTO,1,10) from CRM.TB_CRM_CONTAS WHERE ID=:ContaId))", parametros).FirstOrDefault();
+				//WHERE A.contaId =:ContaId ", parametros).FirstOrDefault();
             }
         }
 
@@ -876,20 +879,22 @@ namespace Ecoporto.CRM.Infra.Repositorios
 						A.CondicaoPagamentoId, 
 						B.DESCPG As CondicaoPagamentoDescricao,
 						A.LimiteCredito, 
-						A.Observacoes,
-						CASE WHEN NVL(B.PRZMED, 0) < 31 THEN 3 ELSE A.StatusLimiteCredito END StatusLimiteCredito ,
-			            C.INADIMPLENTE_SPC As InadimplenteSpc,
+						A.Observacoes ,
+                        CASE WHEN NVL(B.PRZMED,0) <31 THEN 3 ELSE A.StatusLimiteCredito  END StatusLimiteCredito, 
+                        C.INADIMPLENTE_SPC As InadimplenteSpc,
 						C.INADIMPLENTE_ECOPORTO As InadimplenteEcoporto,
 						C.TotalDivida_SPC As TotalDividaSpc,
 						C.TotalDivida_Ecoporto As TotalDividaEcoporto         					
-				FROM 
+						FROM  
 						CRM.TB_CRM_SPC_LIMITE_CREDITO A 
 					INNER JOIN
 						FATURA.TB_COND_PGTO B ON A.CondicaoPagamentoId = B.CODCPG
-					INNER JOIN 
-						CRM.TB_CRM_SPC_CONSULTAS C ON C.CONTAID=A.CONTAID
-					WHERE 
+						INNER JOIN 
+						CRM.TB_CRM_SPC_CONSULTAS C ON C.CONTAID in (SELECT ID FROM CRM.TB_CRM_CONTAS WHERE SUBSTR(DOCUMENTO,1,10) IN 
+						(select SUBSTR(DOCUMENTO,1,10) from CRM.TB_CRM_CONTAS WHERE ID= :ContaId))
+			  	WHERE 
 						A.ContaId = :ContaId", parametros);
+					
             }
         }
 
@@ -957,6 +962,38 @@ namespace Ecoporto.CRM.Infra.Repositorios
 						A.ContaId = :ContaId", parametros).FirstOrDefault();
             }
         }
+		public LimiteCreditoSpcDTO VerificarLimiteDeCreditoPorId(int id, int ContaId)
+		{
+			using (OracleConnection con = new OracleConnection(Config.StringConexao()))
+			{
+				var parametros = new DynamicParameters();
+				parametros.Add(name: "Id", value: id, direction: ParameterDirection.Input);
+				parametros.Add(name: "ContaId", value: ContaId, direction: ParameterDirection.Input);
+
+				return con.Query<LimiteCreditoSpcDTO>(@"
+					SELECT 
+						A.Id, 
+						A.ContaId, 
+						A.CondicaoPagamentoId, 
+						B.DESCPG As CondicaoPagamentoDescricao,
+						A.LimiteCredito, 
+						A.Observacoes ,
+                        CASE WHEN NVL(B.PRZMED,0) <31 THEN 3 ELSE A.StatusLimiteCredito  END StatusLimiteCredito, 
+                        C.INADIMPLENTE_SPC As InadimplenteSpc,
+						C.INADIMPLENTE_ECOPORTO As InadimplenteEcoporto,
+						C.TotalDivida_SPC As TotalDividaSpc,
+						C.TotalDivida_Ecoporto As TotalDividaEcoporto         					
+						FROM  
+						CRM.TB_CRM_SPC_LIMITE_CREDITO A 
+					INNER JOIN
+						FATURA.TB_COND_PGTO B ON A.CondicaoPagamentoId = B.CODCPG
+						INNER JOIN 
+						CRM.TB_CRM_SPC_CONSULTAS C ON C.CONTAID in (SELECT ID FROM CRM.TB_CRM_CONTAS WHERE SUBSTR(DOCUMENTO,1,10) IN 
+						(select SUBSTR(DOCUMENTO,1,10) from CRM.TB_CRM_CONTAS WHERE ID=:ContaId))
+			  	WHERE 
+						A.Id = :Id", parametros).FirstOrDefault();
+			}
+		}
 
 		public void ExcluirLimiteDeCredito(int id)
 		{

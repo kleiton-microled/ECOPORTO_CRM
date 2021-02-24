@@ -30,6 +30,8 @@ namespace Ecoporto.CRM.Site.Controllers
         private readonly Parametros _parametros;
         private readonly WsSPC.Ws _wsSPC;
 
+        int ContaId = 0;
+
         public AnaliseCreditoController(
             IContaRepositorio contaRepositorio,
             IAnaliseCreditoRepositorio analiseCreditoRepositorio,
@@ -129,6 +131,7 @@ namespace Ecoporto.CRM.Site.Controllers
            // _analiseCreditoRepositorio.GravarBlackList();
 
             var contaBusca = _contaRepositorio.ObterContaPorIdAnalise(viewModel.ContaPesquisaId);
+            ContaId = viewModel.ContaPesquisaId;
             var consultaspcnew=0;
 
             if (contaBusca == null)
@@ -349,7 +352,7 @@ namespace Ecoporto.CRM.Site.Controllers
                 
                 if (processo == Processo.ANALISE_DE_CREDITO_COND_PGTO)
                 {
-                    var limiteCreditoCondPgtoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorId(processoId);
+                    var limiteCreditoCondPgtoBusca = _analiseCreditoRepositorio.VerificarLimiteDeCreditoPorId(processoId, viewModel.ContaPesquisaId);
 
                     if (limiteCreditoCondPgtoBusca == null)
                         return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Conta não localizada!");
@@ -477,12 +480,12 @@ namespace Ecoporto.CRM.Site.Controllers
         }
 
         [HttpPost]
-        public ActionResult ExcluirLimiteCredito(int id)
+        public ActionResult ExcluirLimiteCredito(int id, [Bind(Include = "ContaPesquisaId")] AnaliseCreditoViewModel viewModel)
         {
             if (id == 0)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Nenhum Registro Selecionado");
 
-            var solicitacaoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorId(id);
+            var solicitacaoBusca = _analiseCreditoRepositorio.VerificarLimiteDeCreditoPorId(id, ContaId);
 
             if (solicitacaoBusca == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Registro não encontrado");

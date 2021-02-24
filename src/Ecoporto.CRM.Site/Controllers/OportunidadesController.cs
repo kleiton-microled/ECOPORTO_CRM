@@ -2039,22 +2039,22 @@ namespace Ecoporto.CRM.Site.Controllers
                     var fatFCL = oportunidadeBusca.FaturamentoMensalFCL;
                     var fatLCL = oportunidadeBusca.FaturamentoMensalLCL;
 
-                    var valorLiteCreditoBase = (fatFCL / (fatLCL == 0 ? 1 : fatFCL)) * 12;
+                    //var valorLiteCreditoBase = (fatFCL / (fatLCL == 0 ? 1 : fatFCL)) * 12;
 
-                    if (valorLiteCreditoBase > 200_000)
-                    {
-                        var limitesDeCredito = _analiseCreditoRepositorio.ObterSolicitacoesLimiteDeCredito(fontePagadoraId);
+                    //if (valorLiteCreditoBase > 200_000)
+                    //{
+                    //    var limitesDeCredito = _analiseCreditoRepositorio.ObterSolicitacoesLimiteDeCredito(fontePagadoraId);
 
-                        if (limitesDeCredito.Any())
-                        {
-                            var limitesDeCreditoSemAprovacao = limitesDeCredito.Where(c => c.StatusLimiteCredito != StatusLimiteCredito.APROVADO).Any();
+                    //    if (limitesDeCredito.Any())
+                    //    {
+                    //        var limitesDeCreditoSemAprovacao = limitesDeCredito.Where(c => c.StatusLimiteCredito != StatusLimiteCredito.APROVADO).Any();
 
-                            if (limitesDeCreditoSemAprovacao)
-                            {
-                                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A Análise de Crédito possui limites de crédito sem aprovação");
-                            }
-                        }
-                    }
+                    //        if (limitesDeCreditoSemAprovacao)
+                    //        {
+                    //            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A Análise de Crédito possui limites de crédito sem aprovação");
+                    //        }
+                    //    }
+                    //}
                 }
             }
             #endregion FIM ANALISE DE CREDITO

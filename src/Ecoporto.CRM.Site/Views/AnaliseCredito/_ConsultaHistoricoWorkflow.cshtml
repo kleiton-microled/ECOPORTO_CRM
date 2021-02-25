@@ -7,6 +7,7 @@
     <table id="tbHistoricoWorkflow" class="table table-sm" cellspacing="0">
         <thead>
             <tr>
+                <th scope="col">#</th>
                 <th scope="col">Ação</th>
                 <th scope="col">Data</th>
                 <th scope="col">Status</th>
@@ -24,6 +25,7 @@
                     if (DateTimeHelpers.IsDate(itemWorkflow.data_Cancelamento) && DateTimeHelpers.IsNotDefaultDate(itemWorkflow.data_Cancelamento))
                     {
                         <tr>
+                            <td class="alert-danger">@itemWorkflow.id_WorkFlow</td>
                             <td colspan="6" class="alert-danger">
                                 <strong>@itemWorkflow.status</strong>
                             </td>
@@ -32,7 +34,8 @@
                             </td>
                         </tr>
 
-                        <tr>
+                        <tr>                            
+                            <td>P - @itemWorkflow.id_WorkFlow</td>
                             <td>&nbsp;</td>
                             <td>@itemWorkflow.data_Cadastro.ToString("dd/MM/yyyy HH:mm")</td>
                             <td>Aprovado</td>
@@ -46,6 +49,7 @@
                     foreach (var etapa in itemWorkflow?.etapas)
                     {
                         <tr>
+                            <td class="alert-info">P - @itemWorkflow.id_WorkFlow</td>
                             <td colspan="6" class="alert-info">
                                 <strong>@etapa.etapa_Nome</strong>
                             </td>
@@ -57,6 +61,7 @@
                         foreach (var aprovacao in etapa.aprovacoes)
                         {
                             <tr>
+                                <td>P - @itemWorkflow.id_WorkFlow</td>
                                 <td>&nbsp;</td>
                                 <td>@aprovacao.data_Cadastro.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>@Html.DescricaoStatusWorkflow(aprovacao.id_Status)</td>
@@ -70,6 +75,7 @@
                 }
 
                 <tr>
+                    <td class="alert-info">P - @itemWorkflow.id_Processo</td>
                     <td colspan="6" class="alert-info">
                         <strong>Solicitação de aprovação enviada</strong>
                     </td>
@@ -78,6 +84,7 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>P - @itemWorkflow.id_Processo</td>
                     <td>&nbsp;</td>
                     <td>@itemWorkflow.data_Cadastro.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>Enviado</td>

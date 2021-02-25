@@ -23,11 +23,13 @@ namespace Ecoporto.CRM.Business.Interfaces.Repositorios
         
         int ObterSolicitacoesLimiteDeCreditoCond(int contaId, string condicao);
         LimiteCreditoSpcDTO ObterLimiteDeCreditoPorId(int contaId);
+        LimiteCreditoSpcDTO ObterLimiteDeCreditoPorIdUnico(int id);
         LimiteCreditoSpcDTO VerificarLimiteDeCreditoPorId(int Id, int ContaId);
         void ExcluirLimiteDeCredito(int id);
         void GravarBlackList();
         void AtualizarSPC(int id);
         void AtualizarlimiteDeCredito(int id);
+        void AtualizarlimiteDeCreditoPendente(int id);
 
         int buscaformaadendo(int id);
         

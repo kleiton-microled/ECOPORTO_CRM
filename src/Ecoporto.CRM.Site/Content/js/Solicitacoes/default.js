@@ -1720,14 +1720,13 @@ var solicitacoesMensagemErro = function (xhr, status) {
     }
 }
 
-$("#btnRecallSolicitacao").click(function () {
-
+function recallSolicitacao (id) {
     event.preventDefault();
-
+    console.log("teste");
     $('#RecallSolicitacaoId').val($('#Id').val());
 
     $('#modal-motivo-recall').modal('show');
-});
+};
 
 $('#MotivoRecall').keyup(function () {
 

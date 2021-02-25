@@ -50,6 +50,7 @@ namespace Ecoporto.CRM.Workflow.Models
     public class WorkFlow
     {
         public string id { get; set; }
+        public int Processo_Id { get; set; }
         public int id_WorkFlow { get; set; }
         public int id_Status { get; set; }
         public string status { get; set; }

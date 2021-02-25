@@ -344,7 +344,8 @@ namespace Ecoporto.CRM.Site.Controllers
                             DividaEcoporto=analiseCreditoBusca.TotalDividaEcoporto,
                             CondicaoPagamentoFaturamentoId=analiseCreditoBusca.CondicaoPagamentoDescricao ,
                             analiseCreditoBusca.LimiteCredito,
-                            Observacao=analiseCreditoBusca.Observacoes
+                            Observacao=analiseCreditoBusca.Observacoes,
+                            Descricao = "A - " + analiseCreditoBusca.Id
 
                         };
                         }
@@ -376,7 +377,9 @@ namespace Ecoporto.CRM.Site.Controllers
                     DividaEcoporto = limiteCreditoCondPgtoBusca.TotalDividaEcoporto,
                     StatusCondPagto = StatusLimiteCredito.EM_APROVACAO.ToName().Replace("Ã", "A").Replace("ã", "a").Replace("ç", "c").Replace("Ç", "C"),
                     limiteCreditoCondPgtoBusca.LimiteCredito,
-                    Observacao=limiteCreditoCondPgtoBusca.Observacoes
+                    Observacao=limiteCreditoCondPgtoBusca.Observacoes,
+                    Descricao = "P - " + limiteCreditoCondPgtoBusca.Id
+                    
                     };
                 }
 
@@ -418,7 +421,6 @@ namespace Ecoporto.CRM.Site.Controllers
                         retornoWorkflow.protocolo,
                         retornoWorkflow.mensagem,
                         User.ObterId()));
-
 
                 var resultado = _analiseCreditoRepositorio
                 .ObterSolicitacoesLimiteDeCredito(viewModel.ContaPesquisaId);
@@ -471,7 +473,7 @@ namespace Ecoporto.CRM.Site.Controllers
             if (id == 0)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Nenhum Registro Selecionado");
 
-            var solicitacaoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorId(id);
+            var solicitacaoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorIdUnico(id);
 
             if (solicitacaoBusca == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Registro não encontrado");
@@ -485,7 +487,7 @@ namespace Ecoporto.CRM.Site.Controllers
             if (id == 0)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Nenhum Registro Selecionado");
 
-            var solicitacaoBusca = _analiseCreditoRepositorio.VerificarLimiteDeCreditoPorId(id, ContaId);
+            var solicitacaoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorIdUnico(id);
 
             if (solicitacaoBusca == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Registro não encontrado");

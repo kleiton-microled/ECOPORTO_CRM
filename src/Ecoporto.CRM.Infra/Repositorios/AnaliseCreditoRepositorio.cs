@@ -962,6 +962,36 @@ namespace Ecoporto.CRM.Infra.Repositorios
 						A.ContaId = :ContaId", parametros).FirstOrDefault();
             }
         }
+		public LimiteCreditoSpcDTO ObterLimiteDeCreditoPorIdUnico(int id)
+		{
+			using (OracleConnection con = new OracleConnection(Config.StringConexao()))
+			{
+				var parametros = new DynamicParameters();
+				parametros.Add(name: "Id", value: id, direction: ParameterDirection.Input);
+
+				return con.Query<LimiteCreditoSpcDTO>(@"
+					SELECT 
+						A.Id, 
+						A.ContaId, 
+						A.CondicaoPagamentoId, 
+						B.DESCPG As CondicaoPagamentoDescricao,
+						A.LimiteCredito, 
+						A.Observacoes ,
+                        CASE WHEN NVL(B.PRZMED,0) <31 THEN 3 ELSE A.StatusLimiteCredito  END StatusLimiteCredito, 
+                        C.INADIMPLENTE_SPC As InadimplenteSpc,
+						C.INADIMPLENTE_ECOPORTO As InadimplenteEcoporto,
+						C.TotalDivida_SPC As TotalDividaSpc,
+						C.TotalDivida_Ecoporto As TotalDividaEcoporto         					
+						FROM  
+						CRM.TB_CRM_SPC_LIMITE_CREDITO A 
+					INNER JOIN
+						FATURA.TB_COND_PGTO B ON A.CondicaoPagamentoId = B.CODCPG
+						INNER JOIN 
+						CRM.TB_CRM_SPC_CONSULTAS C ON C.CONTAID=A.CONTAID
+			  	WHERE 
+						A.Id = :Id", parametros).FirstOrDefault();
+			}
+		}
 		public LimiteCreditoSpcDTO VerificarLimiteDeCreditoPorId(int id, int ContaId)
 		{
 			using (OracleConnection con = new OracleConnection(Config.StringConexao()))
@@ -1024,6 +1054,16 @@ namespace Ecoporto.CRM.Infra.Repositorios
 				parametros.Add(name: "Id", value: id, direction: ParameterDirection.Input);
 
 				con.Execute(@"UPDATE CRM.TB_CRM_SPC_LIMITE_CREDITO SET StatusLimiteCredito =2  WHERE Id = :Id", parametros);
+			}
+		}
+		public void AtualizarlimiteDeCreditoPendente(int id)
+		{
+			using (OracleConnection con = new OracleConnection(Config.StringConexao()))
+			{
+				var parametros = new DynamicParameters();
+				parametros.Add(name: "Id", value: id, direction: ParameterDirection.Input);
+
+				con.Execute(@"UPDATE CRM.TB_CRM_SPC_LIMITE_CREDITO SET StatusLimiteCredito =0  WHERE Id = :Id", parametros);
 			}
 		}
 		public void GravarBlackList()

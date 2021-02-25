@@ -5,10 +5,11 @@
 @{
     ViewBag.Title = "Análise de Crédito";
 
-    if(Session["RazaoSocial"] != null) {
+    if (Session["RazaoSocial"] != null)
+    {
         ViewBag.RazaoSocial = Session["RazaoSocial"].ToString();
         ViewBag.FontePagadoraId = Session["FontePagadoraId"].ToString();
-        if(Session["Cnpj"] == null)
+        if (Session["Cnpj"] == null)
         {
             Session["Cnpj"] = "00.000.000/0000-00";
         }
@@ -23,7 +24,9 @@
 
     }
 }
-<br /><br /><br />
+<br />
+<br />
+<br />
 <section class="content-header">
     <h1>
         @ViewBag.Title
@@ -108,7 +111,7 @@
                             </ul>
 
                             <div class="tab-content">
-                                <div class="tab-pane active" id="pendenciaFinanceira" role="tabpanel" aria-labelledby="pendencia-tab">                                  
+                                <div class="tab-pane active" id="pendenciaFinanceira" role="tabpanel" aria-labelledby="pendencia-tab">
 
                                     <div class="row">
                                         <div class="col-md-12">
@@ -199,7 +202,7 @@
 </div>
 
 <br />
-
+@Html.Partial("_RecallSolicitacao")
 @Html.Partial("_PesquisarContas")
 
 @section Css{
@@ -239,14 +242,14 @@
     @Scripts.Render("~/bundles/moment")
     @Scripts.Render("~/bundles/datatables")
 
-<script>
+    <script>
 
         $(document).ready(function () {
             $('main')
                 .addClass('container')
                 .removeClass('container-fluid');
         });
-  
+
         function pesquisarContas() {
 
             event.preventDefault();
@@ -263,10 +266,10 @@
             $('#ContaPesquisaId')
                 .empty()
                 .append($('<option>', {
-                    value: id,          
+                    value: id,
                     text: descricao
                 })).focus();
- 
+
             $('#ListaContas').empty();
 
             $('#pnlConsulta')
@@ -327,7 +330,7 @@
             var contaId = $('#ContaPesquisaId').val();
             var reprocessar = $('#Reprocessar').is(':checked');
 
-           
+
 
             if (!isNumero(contaId)) {
                 toastr.error('Escolha um Cliente', 'CRM');
@@ -529,5 +532,59 @@
             });
         }
 
-</script>
+    function recallSolicitacao(id) {
+        event.preventDefault();
+        $('#RecallSolicitacaoId').val(id);
+
+        $('#modal-motivo-recall-solicitacao').modal('show');
+    };
+
+        $('#MotivoRecallSolicitacao').keyup(function () {
+
+        if ($('#MotivoRecallSolicitacao').val().length > 0) {
+            $('#btnConfirmaRecallSolicitacao').prop('disabled', false);
+        } else {
+            $('#btnConfirmaRecallSolicitacao').prop('disabled', true);
+        }
+    });
+
+    $('#btnAnexar').click(function () {
+
+        $(this).html('<i class="fa fa-spinner fa-spin"></i> aguarde...')
+            .addClass('disabled');
+    });
+
+    recallSucesso = function (data) {
+
+        if (data) {
+
+            toastr.success('Recall aprovado', 'CRM');
+
+            if (data.Processo === 1) {
+                $('#modal-motivo-recall-solicitacao').modal('hide');
+            } else if (data.Processo === 2) {
+                $('#modal-motivo-recall-fichas').modal('hide');
+                window.location.hash = "#fichaDeFaturamento";
+            } else if (data.Processo === 3) {
+                $('#modal-motivo-recall-premios').modal('hide');
+                window.location.hash = "#premioDeParceria";
+            } else if (data.Processo === 4) {
+                $('#modal-motivo-recall-adendos').modal('hide');
+                window.location.hash = "#adendos";
+            }
+
+            setTimeout(function () {
+                location.reload();
+            }, 2000);
+        }
+    };
+
+    recallErro = function (xhr, status) {
+
+        if (xhr.statusText)
+            toastr.error(xhr.statusText, 'CRM');
+    };
+
+
+    </script>
 }

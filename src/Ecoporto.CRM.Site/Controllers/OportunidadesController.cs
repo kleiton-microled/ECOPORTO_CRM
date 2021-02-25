@@ -2471,22 +2471,22 @@ namespace Ecoporto.CRM.Site.Controllers
                     var fatFCL = oportunidadeBusca.FaturamentoMensalFCL;
                     var fatLCL = oportunidadeBusca.FaturamentoMensalLCL;
 
-                    var valorLiteCreditoBase = (fatLCL / (fatFCL == 0 ? 1 : fatLCL)) * 12;
+                    //var valorLiteCreditoBase = (fatLCL / (fatFCL == 0 ? 1 : fatLCL)) * 12;
 
-                    if (valorLiteCreditoBase > 200_000)
-                    {
-                        var limitesDeCredito = _analiseCreditoRepositorio.ObterSolicitacoesLimiteDeCredito(fontePagadoraId);
+                    //if (valorLiteCreditoBase > 200_000)
+                    //{
+                    //    var limitesDeCredito = _analiseCreditoRepositorio.ObterSolicitacoesLimiteDeCredito(fontePagadoraId);
 
-                        if (limitesDeCredito.Any())
-                        {
-                            var limitesDeCreditoSemAprovacao = limitesDeCredito.Where(c => c.StatusLimiteCredito != StatusLimiteCredito.APROVADO).Any();
+                    //    if (limitesDeCredito.Any())
+                    //    {
+                    //        var limitesDeCreditoSemAprovacao = limitesDeCredito.Where(c => c.StatusLimiteCredito != StatusLimiteCredito.APROVADO).Any();
 
-                            if (limitesDeCreditoSemAprovacao)
-                            {
-                                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A Análise de Crédito possui limites de crédito sem aprovação");
-                            }
-                        }
-                    }
+                    //        if (limitesDeCreditoSemAprovacao)
+                    //        {
+                    //            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A Análise de Crédito possui limites de crédito sem aprovação");
+                    //        }
+                    //    }
+                    //}
                 }
             }
             var adendos = _oportunidadeRepositorio.ObterAdendos(oportunidadeBusca.Id);

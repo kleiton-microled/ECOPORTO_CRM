@@ -21,6 +21,7 @@ namespace Ecoporto.CRM.Site.Controllers
         private readonly IUsuarioRepositorio _usuarioRepositorio;
         private readonly IWorkflowRepositorio _workflowRepositorio;
         private readonly IEquipesService _equipesService;
+        private readonly IAnaliseCreditoRepositorio _analiseCreditoRepositorio;
 
         public RecallController(
             IOportunidadeRepositorio oportunidadeRepositorio,
@@ -29,6 +30,7 @@ namespace Ecoporto.CRM.Site.Controllers
             IUsuarioRepositorio usuarioRepositorio,
             IWorkflowRepositorio workflowRepositorio,
             IEquipesService equipesService,
+            IAnaliseCreditoRepositorio analiseCreditoRepositorio,
             ILogger logger) : base(logger)
         {
             _oportunidadeRepositorio = oportunidadeRepositorio;
@@ -37,6 +39,7 @@ namespace Ecoporto.CRM.Site.Controllers
             _usuarioRepositorio = usuarioRepositorio;
             _workflowRepositorio = workflowRepositorio;
             _equipesService = equipesService;
+            _analiseCreditoRepositorio = analiseCreditoRepositorio;
         }
 
         [HttpPost]
@@ -96,7 +99,60 @@ namespace Ecoporto.CRM.Site.Controllers
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest, retorno.mensagem);
         }
 
+        //recall solicitacao
+        public ActionResult RecallSolicitacao(int recallSolicitacaoId, string motivoRecallSolicitacao)
+        {
+            var solicitacaoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorIdUnico(recallSolicitacaoId) ;
+
+
+            if (solicitacaoBusca == null)
+                throw new Exception("Solicitação não encontrada ou já excluída");
+
+            if (!User.IsInRole("OportunidadesFichas:RecallFichaFaturamento"))
+            {
+                if (!_equipesService.ValidarEquipeOportunidade(solicitacaoBusca.Id))
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Usuário não possui permissão para edição da Solicitacao (Equipes)");
+                }
+            }
+
+            var token = Autenticador.Autenticar();
+
+            if (token == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Não foi possível se autenticar no serviço de Recall");
+
+            var ultimoProtocolo = _workflowRepositorio.UltimoProtocolo(solicitacaoBusca.Id, Processo.ANALISE_DE_CREDITO_COND_PGTO);
+           
+
+            var workflow = new RecallService(token);
+
+            var retorno = workflow.Recall(new CadastroRecall(ultimoProtocolo, User.ObterLogin(), User.ObterNome(), User.ObterEmail(), motivoRecallSolicitacao));
+
+            if (retorno == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Nenhuma resposta do serviço de Recall");
+
+            if (retorno.sucesso)
+            {
+                if (solicitacaoBusca.StatusLimiteCredito == StatusLimiteCredito.EM_APROVACAO)
+                {
+                    _analiseCreditoRepositorio.AtualizarlimiteDeCreditoPendente(recallSolicitacaoId);
+                }
+
+                //var resultado = _analiseCreditoRepositorio
+                //.ObterSolicitacoesLimiteDeCredito(solicitacaoBusca.ContaId);
+
+                //return PartialView("_SolicitacoesLimiteCredito", resultado);
+                return Json(new
+                {
+                    Processo = Processo.ANALISE_DE_CREDITO_COND_PGTO,
+                    RedirectUrl = $"/AnaliseCredito/Atualizar/{solicitacaoBusca.Id}"
+                }, JsonRequestBehavior.AllowGet);
+            }
+            
+           return new HttpStatusCodeResult(HttpStatusCode.BadRequest, retorno.mensagem);
+        }
         [HttpPost]
+        //recallfichafaturamento
         public ActionResult RecallFichaFaturamento(int recallFichasOportunidadeId, int recallFichasId, string motivoRecallFichas)
         {
             var oportunidadeBusca = _oportunidadeRepositorio.ObterOportunidadePorId(recallFichasOportunidadeId);

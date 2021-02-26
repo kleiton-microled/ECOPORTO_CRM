@@ -20,7 +20,7 @@ namespace Ecoporto.CRM.Business.Interfaces.Repositorios
         IEnumerable<int> ObterListaProcessoId(int contaId);
         void SolicitarLimiteDeCredito(LimiteCreditoSpcDTO limiteCredito);
         IEnumerable<LimiteCreditoSpcDTO> ObterSolicitacoesLimiteDeCredito(int contaId);
-        
+        int VerificarSeEstrangeiro(int contaId);
         int ObterSolicitacoesLimiteDeCreditoCond(int contaId, string condicao);
         LimiteCreditoSpcDTO ObterLimiteDeCreditoPorId(int contaId);
         LimiteCreditoSpcDTO ObterLimiteDeCreditoPorIdUnico(int id);
@@ -28,6 +28,7 @@ namespace Ecoporto.CRM.Business.Interfaces.Repositorios
         void ExcluirLimiteDeCredito(int id);
         void GravarBlackList();
         void AtualizarSPC(int id);
+        void AtualizarSPC1(int id);
         void AtualizarlimiteDeCredito(int id);
         void AtualizarlimiteDeCreditoPendente(int id);
 

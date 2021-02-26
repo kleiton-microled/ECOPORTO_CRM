@@ -580,9 +580,6 @@ namespace Ecoporto.CRM.Infra.Repositorios
 					where  a.oportunidadeid=:oportunidadeid  ", parametros).Single();
 			}
         }
-
-
-
 		public ConsultaSpcDTO ObterConsultaSpc(int contaId)
         {
             using (OracleConnection con = new OracleConnection(Config.StringConexao()))
@@ -898,7 +895,6 @@ namespace Ecoporto.CRM.Infra.Repositorios
             }
         }
 
-
 		public int ObterSolicitacoesLimiteDeCreditoCond(int contaId, string condicao)
 		{
 			using (OracleConnection con = new OracleConnection(Config.StringConexao()))
@@ -930,7 +926,6 @@ namespace Ecoporto.CRM.Infra.Repositorios
 
 			}
 		}
-
 
 		public LimiteCreditoSpcDTO ObterLimiteDeCreditoPorId(int id)
         {
@@ -1045,6 +1040,16 @@ namespace Ecoporto.CRM.Infra.Repositorios
 				con.Execute(@"UPDATE CRM.TB_CRM_SPC_CONSULTAS set STATUSANALISEDECREDITO=2 WHERE contaId = :Id", parametros);
 			}
 		}
+		public void AtualizarSPC1(int id)
+		{
+			using (OracleConnection con = new OracleConnection(Config.StringConexao()))
+			{
+				var parametros = new DynamicParameters();
+				parametros.Add(name: "Id", value: id, direction: ParameterDirection.Input);
+
+				con.Execute(@"UPDATE CRM.TB_CRM_SPC_CONSULTAS set STATUSANALISEDECREDITO=0 WHERE contaId = :Id", parametros);
+			}
+		}
 
 		public void AtualizarlimiteDeCredito(int id)
 		{
@@ -1076,6 +1081,17 @@ namespace Ecoporto.CRM.Infra.Repositorios
 			}
 		}
 
+        public int VerificarSeEstrangeiro(int contaId)
+        {
+			using (OracleConnection con = new OracleConnection(Config.StringConexao()))
+			{
+				var parametros = new DynamicParameters();
+				parametros.Add(name: "ContaId", value: contaId, direction: ParameterDirection.Input);
 
-	}
+
+				return con.Query<int>(@"
+					SELECT COUNT(1) FROM CRM.TB_CRM_CONTAS WHERE segmento = 7 AND ClassificacaoFiscal = 3 AND ID=:ContaId  ", parametros).Single();
+			}
+		}
+    }
 }

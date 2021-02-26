@@ -601,7 +601,8 @@
     <Content Include="Views\AnaliseCredito\_SolicitacoesLimiteCredito.cshtml" />
     <Content Include="Views\AnaliseCredito\_ConsultaHistoricoWorkflow.cshtml" />
     <Content Include="Views\ImpostosExcessao\_ConsultaServicosReadOnly.cshtml" />
-    <Content Include="Views\AnaliseCredito\_RecallSolicitacao.cshtml" />
+    <Content Include="Views\AnaliseCredito\_RecallLimite.cshtml" />
+    <Content Include="Views\AnaliseCredito\_RecallAnaliseCredito.cshtml" />
     <None Include="Web References\WsCalculo\Calcular.disco" />
     <Content Include="Web References\WsConsultaClientes\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>

@@ -239,8 +239,8 @@ namespace Ecoporto.CRM.Site.Controllers
         {
             var conta = _contaRepositorio.ObterContaPorId(viewModel.ContaId);
 
-           // Session["FontePagadoraId"] = viewModel.ContaId;
-           // Session["RazaoSocial"] = viewModel.Descricao;
+            // Session["FontePagadoraId"] = viewModel.ContaId;
+            // Session["RazaoSocial"] = viewModel.Descricao;
 
             if (conta != null)
             {
@@ -1380,7 +1380,7 @@ namespace Ecoporto.CRM.Site.Controllers
             try
             {
                 var parametros = _parametrosRepositorio.ObterParametros();
-     
+
                 var oportunidadeBusca = _oportunidadeRepositorio.ObterOportunidadePorId(id);
 
                 if (oportunidadeBusca == null)
@@ -1452,14 +1452,17 @@ namespace Ecoporto.CRM.Site.Controllers
                         var fichas = _oportunidadeRepositorio.ObterFichasFaturamento(oportunidadeBusca.Id);
 
                         if (!fichas.Any())
-                           return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"A oportunidade não possui ficha(s) de faturamento cadastrada(s)");
+                            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"A oportunidade não possui ficha(s) de faturamento cadastrada(s)");
 
-                        if  (_oportunidadeRepositorio.ObterStatusCondPgto(oportunidadeBusca.Id) !=3 )
+                        var estrangeiro = _analiseCreditoRepositorio.VerificarSeEstrangeiro(oportunidadeBusca.ContaId);
+                        if (estrangeiro == 0)
                         {
-                           return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"Condição de Pagamento sem aprovação ");
+                            if (_oportunidadeRepositorio.ObterStatusCondPgto(oportunidadeBusca.Id) != 3)
+                            {
+                                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"Condição de Pagamento sem aprovação ");
 
+                            }
                         }
-
                     }
                 }
 
@@ -1685,28 +1688,28 @@ namespace Ecoporto.CRM.Site.Controllers
                 {
                     var oportunidadeBusca = _oportunidadeRepositorio.ObterOportunidadePorId(id);
 
-                 //   if ((!Enum.IsDefined(typeof(StatusOportunidade), oportunidadeBusca.StatusOportunidade)) || oportunidadeBusca.StatusOportunidade == StatusOportunidade.ENVIADO_PARA_APROVACAO || oportunidadeBusca.StatusOportunidade == StatusOportunidade.RECUSADO)
-                 //   {
-                        if (oportunidadeBusca.OportunidadeProposta?.TipoOperacao == TipoOperacao.RA)
-                        {
-                            string url = Url.Action(nameof(PropostaOnline), "Oportunidades", new RouteValueDictionary(new { oportunidadeBusca.Id }), "http");
+                    //   if ((!Enum.IsDefined(typeof(StatusOportunidade), oportunidadeBusca.StatusOportunidade)) || oportunidadeBusca.StatusOportunidade == StatusOportunidade.ENVIADO_PARA_APROVACAO || oportunidadeBusca.StatusOportunidade == StatusOportunidade.RECUSADO)
+                    //   {
+                    if (oportunidadeBusca.OportunidadeProposta?.TipoOperacao == TipoOperacao.RA)
+                    {
+                        string url = Url.Action(nameof(PropostaOnline), "Oportunidades", new RouteValueDictionary(new { oportunidadeBusca.Id }), "http");
 
-                            new PropostaPdfHelper(_anexoRepositorio, oportunidadeBusca, true, url, true)
-                                .GerarPropostaPdf();
+                        new PropostaPdfHelper(_anexoRepositorio, oportunidadeBusca, true, url, true)
+                            .GerarPropostaPdf();
 
-                            mensagem = "PDF gerado com sucesso!";
-                        }
-                        else
-                        {
-                            sucesso = false;
-                            mensagem = $"O Tipo de Operação não é RA";
-                        }
-                  //  }
-                 //   else
-                 //   {
+                        mensagem = "PDF gerado com sucesso!";
+                    }
+                    else
+                    {
+                        sucesso = false;
+                        mensagem = $"O Tipo de Operação não é RA";
+                    }
+                    //  }
+                    //   else
+                    //   {
                     //    sucesso = false;
-                     //   mensagem = $"O Status {oportunidadeBusca.StatusOportunidade.ToName()} não permite geração de PDF";
-                   // }
+                    //   mensagem = $"O Status {oportunidadeBusca.StatusOportunidade.ToName()} não permite geração de PDF";
+                    // }
                 }
                 catch (Exception ex)
                 {
@@ -1997,65 +2000,71 @@ namespace Ecoporto.CRM.Site.Controllers
 
             var adendoforma = _analiseCreditoRepositorio.buscaformaadendo(oportunidadeBusca.Id);
             bool entrada = false;
-            if  (oportunidadeBusca.OportunidadeProposta.FormaPagamento == FormaPagamento.FATURADO ) { entrada = true; }
-                if (adendoforma > 0)
+            if (oportunidadeBusca.OportunidadeProposta.FormaPagamento == FormaPagamento.FATURADO) { entrada = true; }
+            if (adendoforma > 0)
             {
                 entrada = true;
             }
 
-                    if (habilitaDemandaAnaliseDeCredito && (entrada) )
+            if (habilitaDemandaAnaliseDeCredito && (entrada))
             {
                 var fontePagadoraId = viewModel.FontePagadoraId;
 
+                var estrangeiro = _analiseCreditoRepositorio.VerificarSeEstrangeiro(fontePagadoraId);
 
-                var spcBusca = _analiseCreditoRepositorio.ObterConsultaSpc(fontePagadoraId);
-
-                if (spcBusca == null)
+                if (estrangeiro == 0)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Fonte Pagadora não possui análise de crédito ou análise pendente aprovação.");
-                }
-                else
-                {
-                    if (spcBusca.Validade < DateTime.Now)
+                    var spcBusca = _analiseCreditoRepositorio.ObterConsultaSpc(fontePagadoraId);
+                    if (spcBusca == null)
                     {
-                        return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Análise de Crédito vencida para a Fonte Pagadora");
+                        return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Fonte Pagadora não possui análise de crédito ou análise pendente aprovação.");
                     }
-
-
-                    if (spcBusca.InadimplenteEcoporto || spcBusca.InadimplenteSpc)
+                    else
                     {
-                        if (spcBusca.StatusAnaliseDeCredito != StatusAnaliseDeCredito.APROVADO)
+                        if (spcBusca.Validade < DateTime.Now)
                         {
-                            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Fonte Pagadora conta como inadimplente. Análise de Crédito não possui aprovação.");
+                            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Análise de Crédito vencida para a Fonte Pagadora");
                         }
+
+
+                        if (spcBusca.InadimplenteEcoporto || spcBusca.InadimplenteSpc)
+                        {
+                            if (spcBusca.StatusAnaliseDeCredito != StatusAnaliseDeCredito.APROVADO)
+                            {
+                                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Fonte Pagadora conta como inadimplente. Análise de Crédito não possui aprovação.");
+                            }
+                        }
+
+
+                        if (_oportunidadeRepositorio.ObterStatusCondPgtoNew(viewModel.FontePagadoraId, viewModel.CondicaoPagamentoFaturamentoId) != 3)
+                        {
+                            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"Condição de Pagamento sem aprovação ");
+
+                        }
+                        var fatFCL = oportunidadeBusca.FaturamentoMensalFCL;
+                        var fatLCL = oportunidadeBusca.FaturamentoMensalLCL;
+
+                        //var valorLiteCreditoBase = (fatFCL / (fatLCL == 0 ? 1 : fatFCL)) * 12;
+
+                        //if (valorLiteCreditoBase > 200_000)
+                        //{
+                        //    var limitesDeCredito = _analiseCreditoRepositorio.ObterSolicitacoesLimiteDeCredito(fontePagadoraId);
+
+                        //    if (limitesDeCredito.Any())
+                        //    {
+                        //        var limitesDeCreditoSemAprovacao = limitesDeCredito.Where(c => c.StatusLimiteCredito != StatusLimiteCredito.APROVADO).Any();
+
+                        //        if (limitesDeCreditoSemAprovacao)
+                        //        {
+                        //            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A Análise de Crédito possui limites de crédito sem aprovação");
+                        //        }
+                        //    }
+                        //}
                     }
-
-
-                    if (_oportunidadeRepositorio.ObterStatusCondPgtoNew(viewModel.FontePagadoraId, viewModel.CondicaoPagamentoFaturamentoId) != 3)
-                    {
-                        return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"Condição de Pagamento sem aprovação ");
-
-                    }
-                    var fatFCL = oportunidadeBusca.FaturamentoMensalFCL;
-                    var fatLCL = oportunidadeBusca.FaturamentoMensalLCL;
-
-                    //var valorLiteCreditoBase = (fatFCL / (fatLCL == 0 ? 1 : fatFCL)) * 12;
-
-                    //if (valorLiteCreditoBase > 200_000)
-                    //{
-                    //    var limitesDeCredito = _analiseCreditoRepositorio.ObterSolicitacoesLimiteDeCredito(fontePagadoraId);
-
-                    //    if (limitesDeCredito.Any())
-                    //    {
-                    //        var limitesDeCreditoSemAprovacao = limitesDeCredito.Where(c => c.StatusLimiteCredito != StatusLimiteCredito.APROVADO).Any();
-
-                    //        if (limitesDeCreditoSemAprovacao)
-                    //        {
-                    //            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A Análise de Crédito possui limites de crédito sem aprovação");
-                    //        }
-                    //    }
-                    //}
                 }
+                
+
+                
             }
             #endregion FIM ANALISE DE CREDITO
             var ficha = new OportunidadeFichaFaturamento
@@ -2090,7 +2099,7 @@ namespace Ecoporto.CRM.Site.Controllers
             if (existeAnaliseDeCreditoPendente > 0)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"Analise de Credito pendente para esta conta");
-             }
+            }
             if (existeAnaliseDeCreditoPendente > 0)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, $"Limite de credito pendente para esta conta");
@@ -2439,6 +2448,7 @@ namespace Ecoporto.CRM.Site.Controllers
             if (habilitaDemandaAnaliseDeCredito && oportunidadeBusca.OportunidadeProposta.FormaPagamento == FormaPagamento.FATURADO)
             {
                 var fontePagadoraId = fichaFaturamentoBusca.FontePagadoraId;
+
                 var spcBusca = _analiseCreditoRepositorio.ObterConsultaSpc(fontePagadoraId);
 
                 if (spcBusca == null)
@@ -5518,7 +5528,7 @@ namespace Ecoporto.CRM.Site.Controllers
             if (adendoBusca.TipoAdendo == TipoAdendo.FORMA_PAGAMENTO)
             {
                 var fichasFaturamento = _oportunidadeRepositorio.ObterFichasFaturamento(oportunidadeBusca.Id);
-                
+
                 var adendoFormaPagamento = _oportunidadeRepositorio
                     .ObterAdendoFormaPagamento(adendoBusca.Id)
                     .FormaPagamento;
@@ -5554,7 +5564,7 @@ namespace Ecoporto.CRM.Site.Controllers
                     }
                 }
                 //
-                
+
                 foreach (var ficha in fichasFaturamento)
                 {
                     if (ficha.StatusFichaFaturamento == StatusFichaFaturamento.EM_ANDAMENTO || ficha.StatusFichaFaturamento == StatusFichaFaturamento.REJEITADO)

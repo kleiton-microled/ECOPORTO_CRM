@@ -1083,7 +1083,7 @@ function obterDetalhesGRDesconto(seq_gr, tipoOperacao) {
                 break;
             case 3:
                 seq_gr = valorPesquisa;
-                break;            
+                break;
             case 6:
                 reserva = valorPesquisa;
                 break;
@@ -1097,7 +1097,7 @@ function obterDetalhesGRDesconto(seq_gr, tipoOperacao) {
             url = urlBase + 'Solicitacoes/ObterDetalhesGRRedex/?reserva=' + reserva + '&display=' + $('#DescontoGRMinutaId option:selected').text();
         } else {
             url = urlBase + 'Solicitacoes/ObterDetalhesGR/?lote=' + lote + '&seq_gr=' + seq_gr + '&bl=' + bl + '&tipoPesquisa=' + tipoPesquisa;
-        }        
+        }
 
         $.get(url, function (resultado) {
             if (resultado) {
@@ -1550,7 +1550,7 @@ $('#btnEnviarParaAprovacao').click(function () {
     $.post(urlBase + 'Solicitacoes/EnviarParaAprovacao/', { tipoSolicitacao: tipoSolicitacao, solicitacaoId: solicitacaoId }, function (data) {
 
         toastr.success('Solicitação enviada para aprovação!', 'CRM');
-
+        console.log(typeof tipoSolicitacao);
         setTimeout(function () {
             if (data) {
                 document.location.href = decodeURIComponent(data.RedirectUrl);
@@ -1568,6 +1568,8 @@ $('#btnEnviarParaAprovacao').click(function () {
             .html('Enviar para Aprovação')
             .prop('disabled', false);
     });
+    var statusAtualizado = document.getElementById("statusLimit").innerHTML;
+    statusAtualizado = "Em Aprovação";
 });
 
 function obterHistoricoWorkflow(id, idProcesso) {
@@ -1720,13 +1722,14 @@ var solicitacoesMensagemErro = function (xhr, status) {
     }
 }
 
-function recallSolicitacao (id) {
+$("#btnRecallSolicitacao").click(function () {
+
     event.preventDefault();
-    console.log("teste");
+
     $('#RecallSolicitacaoId').val($('#Id').val());
 
     $('#modal-motivo-recall').modal('show');
-};
+});
 
 $('#MotivoRecall').keyup(function () {
 

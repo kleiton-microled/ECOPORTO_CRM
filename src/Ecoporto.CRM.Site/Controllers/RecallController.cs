@@ -100,9 +100,10 @@ namespace Ecoporto.CRM.Site.Controllers
         }
 
         //recall solicitacao
-        public ActionResult RecallSolicitacao(int recallSolicitacaoId, string motivoRecallSolicitacao)
+        [HttpPost]
+        public ActionResult RecallLimiteCredito(int recallLimiteId, string motivoRecallLimite)
         {
-            var solicitacaoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorIdUnico(recallSolicitacaoId) ;
+            var solicitacaoBusca = _analiseCreditoRepositorio.ObterLimiteDeCreditoPorIdUnico(recallLimiteId) ;
 
 
             if (solicitacaoBusca == null)
@@ -126,7 +127,7 @@ namespace Ecoporto.CRM.Site.Controllers
 
             var workflow = new RecallService(token);
 
-            var retorno = workflow.Recall(new CadastroRecall(ultimoProtocolo, User.ObterLogin(), User.ObterNome(), User.ObterEmail(), motivoRecallSolicitacao));
+            var retorno = workflow.Recall(new CadastroRecall(ultimoProtocolo, User.ObterLogin(), User.ObterNome(), User.ObterEmail(), motivoRecallLimite));
 
             if (retorno == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Nenhuma resposta do serviço de Recall");
@@ -135,7 +136,7 @@ namespace Ecoporto.CRM.Site.Controllers
             {
                 if (solicitacaoBusca.StatusLimiteCredito == StatusLimiteCredito.EM_APROVACAO)
                 {
-                    _analiseCreditoRepositorio.AtualizarlimiteDeCreditoPendente(recallSolicitacaoId);
+                    _analiseCreditoRepositorio.AtualizarlimiteDeCreditoPendente(recallLimiteId);
                 }
 
                 //var resultado = _analiseCreditoRepositorio
@@ -150,6 +151,59 @@ namespace Ecoporto.CRM.Site.Controllers
             }
             
            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, retorno.mensagem);
+        }
+        //recall solicitacao
+        [HttpPost]
+        public ActionResult RecallAnaliseCredito(int recallAnaliseId, string motivoRecallAnalise)
+        {
+            var analiseCreditoBusca = _analiseCreditoRepositorio.ObterConsultaSpc(recallAnaliseId);
+
+            if (analiseCreditoBusca == null)
+                throw new Exception("Solicitação não encontrada ou já excluída");
+
+            if (!User.IsInRole("OportunidadesFichas:RecallFichaFaturamento"))
+            {
+                if (!_equipesService.ValidarEquipeOportunidade(analiseCreditoBusca.Id))
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Usuário não possui permissão para edição da Solicitacao (Equipes)");
+                }
+            }
+
+            var token = Autenticador.Autenticar();
+
+            if (token == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Não foi possível se autenticar no serviço de Recall");
+
+            var ultimoProtocolo = _workflowRepositorio.UltimoProtocolo(analiseCreditoBusca.ContaId, Processo.ANALISE_DE_CREDITO);
+
+
+            var workflow = new RecallService(token);
+
+            var retorno = workflow.Recall(new CadastroRecall(ultimoProtocolo, User.ObterLogin(), User.ObterNome(), User.ObterEmail(), motivoRecallAnalise));
+
+            if (retorno == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Nenhuma resposta do serviço de Recall");
+
+            if (retorno.sucesso)
+            {
+                if (analiseCreditoBusca.StatusAnaliseDeCredito == StatusAnaliseDeCredito.EM_APROVACAO)
+                {
+                    _analiseCreditoRepositorio.AtualizarSPC1(recallAnaliseId);
+                }
+
+                //var resultado = _analiseCreditoRepositorio
+                //.ObterSolicitacoesLimiteDeCredito(solicitacaoBusca.ContaId);
+
+                //return PartialView("_SolicitacoesLimiteCredito", resultado);
+                return Json(new
+                {
+                    Processo = Processo.ANALISE_DE_CREDITO,
+                    RedirectUrl = $"/AnaliseCredito/{recallAnaliseId}",
+                }, JsonRequestBehavior.AllowGet);
+                //return RedirectToAction("Index", "AnaliseCredito", new { id = recallAnaliseId });
+            }
+
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, retorno.mensagem);
         }
         [HttpPost]
         //recallfichafaturamento

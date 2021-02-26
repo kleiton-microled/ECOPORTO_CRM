@@ -1,31 +1,31 @@
-﻿<div class="modal" tabindex="-1" role="dialog" id="modal-motivo-recall-solicitacao">
+﻿<div class="modal" tabindex="-1" role="dialog" id="modal-motivo-recall-limite">
     <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Recall de Limite de Crédito</h5>
             </div>
-            @using (Ajax.BeginForm("RecallSolicitacao", "Recall", null, new AjaxOptions
+            @using (Ajax.BeginForm("RecallLimiteCredito", "Recall", null, new AjaxOptions
             {
                 OnSuccess = "recallSucesso",
                 OnFailure = "recallErro",
                 HttpMethod = "Post"
-            }, new { id = "frmRecallFichaFaturamento" }))
+            }, new { id = "frmRecallLimite" }))
             {
                 <div class="modal-body">
                     <p>Informe o motivo do Recall:</p>
 
                     <div class="form-group row">
                         <div class="col-md-12">
-                            <input type="hidden" id="RecallSolicitacaoId" name="RecallSolicitacaoId" />
-                            <input type="hidden" id="RecallFichasId" name="RecallFichasId" />
-                            <textarea class="form-control" rows="5" id="MotivoRecallSolicitacao" name="MotivoRecallSolicitacao"></textarea>
+                            <input type="hidden" id="RecallLimiteId" name="RecallLimiteId" />
+                            <input type="hidden" id="recallfichasid" name="recallfichaid" />
+                            <textarea class="form-control" rows="5" id="MotivoRecallLimite" name="MotivoRecallLimite"></textarea>
                         </div>
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button id="btnConfirmaRecallSolicitacao" type="submit" class="btn btn-danger" disabled>Estou ciente e confirmo o Recall da Ficha</button>
+                    <button id="btnConfirmaRecallLimite" type="submit" class="btn btn-danger" disabled>Estou ciente e confirmo o Recall Limite Credito</button>
                 </div>
 
             }

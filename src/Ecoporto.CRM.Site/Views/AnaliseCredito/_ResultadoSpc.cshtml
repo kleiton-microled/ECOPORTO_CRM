@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="col-md-2 offset-md-4">
-            <a href="#" class="btn btn-outline-secondary btn-sm btn-block btn-as-block @(dadosSpc.StatusAnaliseDeCredito == StatusAnaliseDeCreditoResponse.PENDENTE || dadosSpc.StatusAnaliseDeCredito != StatusAnaliseDeCreditoResponse.EM_APROVACAO ? "disabled" : "") "onclick="recallAnaliseCredito()"><i class="fas fa-undo"></i>&nbsp;&nbsp;Recall</a>
+            <a href="#" class="btn btn-outline-secondary btn-sm btn-block btn-as-block @(dadosSpc.StatusAnaliseDeCredito == StatusAnaliseDeCreditoResponse.PENDENTE || dadosSpc.StatusAnaliseDeCredito != StatusAnaliseDeCreditoResponse.EM_APROVACAO ? "disabled" : "") "onclick="recallAnaliseCredito(@dadosSpc.ContaId)" id="btnRecall"><i class="fas fa-undo"></i>&nbsp;&nbsp;Recall</a>
         </div>
         <div class="col-md-2">
             <a href="#" class="btn btn-outline-secondary btn-sm btn-block btn-as-block @(dadosSpc.StatusAnaliseDeCredito == StatusAnaliseDeCreditoResponse.EM_APROVACAO ? "disabled" : "")" onclick="enviarParaAprovacao(@dadosSpc.ContaId, 13, @dadosSpc.ContaId);"><i class="fas fa-upload"></i>&nbsp;&nbsp;Enviar para Aprovação</a>

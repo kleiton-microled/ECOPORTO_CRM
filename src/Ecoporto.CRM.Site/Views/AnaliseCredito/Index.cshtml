@@ -202,7 +202,9 @@
 </div>
 
 <br />
-@Html.Partial("_RecallSolicitacao")
+@Html.Partial("_RecallLimite")
+@Html.Partial("_RecallAnaliseCredito")
+@*@Html.Partial("_RecallAnaliseCredito")*@
 @Html.Partial("_PesquisarContas")
 
 @section Css{
@@ -464,7 +466,7 @@
             });
 
         }
-        function selecionarLimiteCredito(id) {
+    function selecionarLimiteCredito(id) {
 
             $.get(urlBase + 'AnaliseCredito/ObterDetalhesLimiteCredito/' + id, function (response) {
 
@@ -484,7 +486,7 @@
             });
         }
 
-        function excluirLimiteCredito(id) {
+    function excluirLimiteCredito(id) {
 
             $.post(urlBase + 'AnaliseCredito/ExcluirLimiteCredito', { id: id }, function (response) {
 
@@ -505,7 +507,7 @@
             });
     }
 
-        function expandirLinha(id) {
+    function expandirLinha(id) {
 
             event.preventDefault();
 
@@ -519,7 +521,7 @@
 
         }
 
-        function obterHistoricoWorkflow(id) {
+    function obterHistoricoWorkflow(id) {
 
             $.get(urlBase + 'AnaliseCredito/ObterHistoricoWorkflow/?contaId=' + id, function (data) {
 
@@ -532,19 +534,19 @@
             });
         }
 
-    function recallSolicitacao(id) {
+    function recallAnaliseCredito(id) {
         event.preventDefault();
-        $('#RecallSolicitacaoId').val(id);
+        $('#RecallAnaliseId').val(id);
 
-        $('#modal-motivo-recall-solicitacao').modal('show');
+        $('#modal-motivo-recall-analise').modal('show');
     };
 
-        $('#MotivoRecallSolicitacao').keyup(function () {
+        $('#MotivoRecallAnalise').keyup(function () {
 
-        if ($('#MotivoRecallSolicitacao').val().length > 0) {
-            $('#btnConfirmaRecallSolicitacao').prop('disabled', false);
+        if ($('#MotivoRecallAnalise').val().length > 0) {
+            $('#btnConfirmaRecallAnalise').prop('disabled', false);
         } else {
-            $('#btnConfirmaRecallSolicitacao').prop('disabled', true);
+            $('#btnConfirmaRecallAnalise').prop('disabled', true);
         }
     });
 
@@ -554,36 +556,89 @@
             .addClass('disabled');
     });
 
-    recallSucesso = function (data) {
+    //recallSucesso = function (data) {
 
-        if (data) {
+    //    if (data) {
 
-            toastr.success('Recall aprovado', 'CRM');
+    //        toastr.success('Recall aprovado', 'CRM');
 
-            if (data.Processo === 1) {
-                $('#modal-motivo-recall-solicitacao').modal('hide');
-            } else if (data.Processo === 2) {
-                $('#modal-motivo-recall-fichas').modal('hide');
-                window.location.hash = "#fichaDeFaturamento";
-            } else if (data.Processo === 3) {
-                $('#modal-motivo-recall-premios').modal('hide');
-                window.location.hash = "#premioDeParceria";
-            } else if (data.Processo === 4) {
-                $('#modal-motivo-recall-adendos').modal('hide');
-                window.location.hash = "#adendos";
-            }
+    //        if (data.Processo === 1) {
+    //            $('#modal-motivo-recall-analise').modal('hide');
+    //        } else if (data.Processo === 2) {
+    //            $('#modal-motivo-recall-analise').modal('hide');
+    //            window.location.hash = "#fichaDeFaturamento";
+    //        } else if (data.Processo === 3) {
+    //            $('#modal-motivo-recall-premios').modal('hide');
+    //            window.location.hash = "#premioDeParceria";
+    //        } else if (data.Processo === 4) {
+    //            $('#modal-motivo-recall-adendos').modal('hide');
+    //            window.location.hash = "#adendos";
+    //        }
 
-            setTimeout(function () {
-                location.reload();
-            }, 2000);
-        }
-    };
+    //        setTimeout(function () {
+    //            location.reload();
+    //        }, 2000);
+    //    }
+    //};
 
     recallErro = function (xhr, status) {
 
         if (xhr.statusText)
             toastr.error(xhr.statusText, 'CRM');
-    };
+        };
+        //recall analise
+        function recallLimiteCredito(id) {
+            event.preventDefault();
+            $('#RecallLimiteId').val(id);
+
+            $('#modal-motivo-recall-limite').modal('show');
+        };
+
+        $('#MotivoRecallLimite').keyup(function () {
+
+            if ($('#MotivoRecallLimite').val().length > 0) {
+                $('#btnConfirmaRecallLimite').prop('disabled', false);
+            } else {
+                $('#btnConfirmaRecallLimite').prop('disabled', true);
+            }
+        });
+
+        $('#btnAnexar').click(function () {
+
+            $(this).html('<i class="fa fa-spinner fa-spin"></i> aguarde...')
+                .addClass('disabled');
+        });
+
+        recallSucesso = function (data) {
+
+            if (data) {
+
+                toastr.success('Recall aprovado', 'CRM');
+
+                if (data.Processo === 1) {
+                    $('#modal-motivo-recall').modal('hide');
+                } else if (data.Processo === 2) {
+                    $('#modal-motivo-recall-fichas').modal('hide');
+                    window.location.hash = "#fichaDeFaturamento";
+                } else if (data.Processo === 3) {
+                    $('#modal-motivo-recall-premios').modal('hide');
+                    window.location.hash = "#premioDeParceria";
+                } else if (data.Processo === 4) {
+                    $('#modal-motivo-recall-adendos').modal('hide');
+                    window.location.hash = "#adendos";
+                }
+
+                setTimeout(function () {
+                    location.reload();
+                }, 2000);
+            }
+        };
+
+        recallErro = function (xhr, status) {
+
+            if (xhr.statusText)
+                toastr.error(xhr.statusText, 'CRM');
+        };
 
 
     </script>

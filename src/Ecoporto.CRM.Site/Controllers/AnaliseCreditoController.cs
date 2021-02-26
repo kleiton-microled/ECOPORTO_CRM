@@ -97,7 +97,6 @@ namespace Ecoporto.CRM.Site.Controllers
         {
             try
             {
-
                 var condicoesPagamento = _condicaoPagamentoFaturaRepositorio.ObterCondicoesPagamento();
 
                 ViewBag.Controle = true;
@@ -288,8 +287,6 @@ namespace Ecoporto.CRM.Site.Controllers
                 throw new Exception(ex.ToString());
             }
         }
-
-
 
         [HttpPost]
         public ActionResult EnviarParaAprovacao(int processoId, Processo processo, [Bind(Include = "ContaPesquisaId")] AnaliseCreditoViewModel viewModel)

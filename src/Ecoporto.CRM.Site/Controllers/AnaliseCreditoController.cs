@@ -50,7 +50,7 @@ namespace Ecoporto.CRM.Site.Controllers
         }
 
         [HttpGet]
-        public ActionResult Index()
+        public ActionResult Index(int id = 0)
         {
             var condicoesPagamento = _condicaoPagamentoFaturaRepositorio.ObterCondicoesPagamento();
 
@@ -62,6 +62,17 @@ namespace Ecoporto.CRM.Site.Controllers
                 ResultadoSPC = new WsSPC.ConsultaSpcResponse(),
                 SolicitacoesLimiteCredito = new List<LimiteCreditoSpcDTO>()
             };
+
+            if (id != 0)
+            {
+                var contaSessao = _contaRepositorio.ObterContaPorId(id);
+                Session["ContaId"] = contaSessao.Id;
+                Session["RazaoSocial"] = contaSessao.Descricao;
+                Session["FontePagadoraId"] = contaSessao.Id;
+                Session["Cnpj"] = contaSessao.Documento;
+
+            }
+            
 
             return View(viewModel);
         }   
@@ -293,7 +304,18 @@ namespace Ecoporto.CRM.Site.Controllers
         {
             try
             {
+                var contaSessao = _contaRepositorio.ObterContaPorId(viewModel.ContaPesquisaId);
+                //string cnpj = razaoSocial.Substring(tamanho - 19, 18).Replace(")", "");
+                ////achei
+                //
+                Session["ContaId"] = contaSessao.Id;
+                Session["RazaoSocial"] = contaSessao.Descricao;
+                Session["FontePagadoraId"] = contaSessao.Id;
+                Session["Cnpj"] = contaSessao.Documento;
                 dynamic campos = null;
+
+                var contaEspecifica = _contaRepositorio.ObterContaPorId(viewModel.ContaPesquisaId);
+
                 var analiseCreditoBusca = _analiseCreditoRepositorio.ObterConsultaSpc(processoId);
 
                 if (processo == Processo.ANALISE_DE_CREDITO)

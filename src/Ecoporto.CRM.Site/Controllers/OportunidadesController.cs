@@ -5690,7 +5690,7 @@ namespace Ecoporto.CRM.Site.Controllers
             int tamanho = razaoSocial.Length;
 
             string cnpj = razaoSocial.Substring(tamanho - 19, 18).Replace(")", "");
-
+            //achei
             Session["RazaoSocial"] = razaoSocial;
             Session["FontePagadoraId"] = contaId;
             Session["Cnpj"] = cnpj;

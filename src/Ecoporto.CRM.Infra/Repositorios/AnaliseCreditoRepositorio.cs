@@ -908,7 +908,7 @@ namespace Ecoporto.CRM.Infra.Repositorios
 						count(1)   
 					FROM 
 						CRM.TB_CRM_SPC_LIMITE_CREDITO A 
-					WHERE A.CondicaoPagamentoId=:CondicaoPagamentoId And  
+					WHERE A.statuslimitecredito != 4 AND A.CondicaoPagamentoId=:CondicaoPagamentoId And  
 						A.ContaId = :ContaId", parametros).Single(); 
 			}
 		}

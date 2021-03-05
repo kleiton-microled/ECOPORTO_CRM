@@ -22,6 +22,7 @@ namespace Ecoporto.CRM.Site.Controllers
         private readonly IWorkflowRepositorio _workflowRepositorio;
         private readonly IEquipesService _equipesService;
         private readonly IAnaliseCreditoRepositorio _analiseCreditoRepositorio;
+        private readonly IContaRepositorio _contaRepositorio;
 
         public RecallController(
             IOportunidadeRepositorio oportunidadeRepositorio,
@@ -31,6 +32,7 @@ namespace Ecoporto.CRM.Site.Controllers
             IWorkflowRepositorio workflowRepositorio,
             IEquipesService equipesService,
             IAnaliseCreditoRepositorio analiseCreditoRepositorio,
+            IContaRepositorio contaRepositorio,
             ILogger logger) : base(logger)
         {
             _oportunidadeRepositorio = oportunidadeRepositorio;
@@ -40,6 +42,7 @@ namespace Ecoporto.CRM.Site.Controllers
             _workflowRepositorio = workflowRepositorio;
             _equipesService = equipesService;
             _analiseCreditoRepositorio = analiseCreditoRepositorio;
+            _contaRepositorio = contaRepositorio;
         }
 
         [HttpPost]
@@ -146,7 +149,7 @@ namespace Ecoporto.CRM.Site.Controllers
                 return Json(new
                 {
                     Processo = Processo.ANALISE_DE_CREDITO_COND_PGTO,
-                    RedirectUrl = $"/AnaliseCredito/Atualizar/{solicitacaoBusca.Id}"
+                    RedirectUrl = $"/AnaliseCredito/Index/{solicitacaoBusca.Id}"
                 }, JsonRequestBehavior.AllowGet);
             }
             
@@ -156,6 +159,13 @@ namespace Ecoporto.CRM.Site.Controllers
         [HttpPost]
         public ActionResult RecallAnaliseCredito(int recallAnaliseId, string motivoRecallAnalise)
         {
+            var contaSessao = _contaRepositorio.ObterContaPorId(recallAnaliseId);
+
+            Session["ContaId"] = contaSessao.Id;
+            Session["RazaoSocial"] = contaSessao.Descricao;
+            Session["FontePagadoraId"] = contaSessao.Id;
+            Session["Cnpj"] = contaSessao.Documento;
+
             var analiseCreditoBusca = _analiseCreditoRepositorio.ObterConsultaSpc(recallAnaliseId);
 
             if (analiseCreditoBusca == null)

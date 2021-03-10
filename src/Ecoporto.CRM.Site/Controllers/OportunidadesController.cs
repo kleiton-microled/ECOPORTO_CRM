@@ -2009,7 +2009,17 @@ namespace Ecoporto.CRM.Site.Controllers
             if (habilitaDemandaAnaliseDeCredito && (entrada))
             {
                 var fontePagadoraId = viewModel.FontePagadoraId;
-
+                if (fontePagadoraId == null)
+                {
+                    if (viewModel.ClientePropostaSelecionadoId != null)
+                    {
+                        fontePagadoraId = viewModel.ClientePropostaSelecionadoId[0];
+                    }
+                    else
+                    {
+                        fontePagadoraId = oportunidadeBusca.ContaId;
+                    }
+                }
                 var estrangeiro = _analiseCreditoRepositorio.VerificarSeEstrangeiro(fontePagadoraId);
 
                 if (estrangeiro == 0)

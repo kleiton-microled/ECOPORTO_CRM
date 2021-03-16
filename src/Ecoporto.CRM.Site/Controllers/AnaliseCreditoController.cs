@@ -353,9 +353,10 @@ namespace Ecoporto.CRM.Site.Controllers
                                 //EnviarParaAprovacaocond(limiteCreditoCondPgto.Id);
                             }
                         }
-                        campos = new
-                        {
-                            ContaId = contaBusca.Descricao +" - "+ contaBusca.Documento,
+                    campos = new
+                    {
+                        //ContaId = contaBusca.Descricao +" - "+ contaBusca.Documento,
+                            ContaId = contaBusca.Id,
                             StatusAnaliseCreditoPEFIN= StatusAnaliseDeCredito.EM_APROVACAO.ToName().Replace("Ã","A").Replace("ã", "a").Replace("ç", "c").Replace("Ç", "C"),
                             InadimplenteEcoporto=analiseCreditoBusca.InadimplenteEcoporto.ToSimOuNao().Replace("Ã", "A").Replace("ã", "a").Replace("ç", "c").Replace("Ç", "C"),
                             InadimplenteSPC = analiseCreditoBusca.InadimplenteSpc.ToSimOuNao().Replace("Ã", "A").Replace("ã", "a").Replace("ç", "c").Replace("Ç", "C"),
